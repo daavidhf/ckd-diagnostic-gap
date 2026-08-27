@@ -58,11 +58,11 @@ Urology questionnaire (`KIQ_U`).
 
 ```
 .
-├── Exploratory_analysis.ipynb   # Full analysis: data loading, cleaning, biomarker
-│                                 # derivation, statistical testing, plots
-├── Exploratory_analysis.html    # Rendered, read-only export of the notebook
-├── Abstract.html                 # Project abstract / summary write-up
-├── Infography.png                # Final explanatory infographic
+├── explanatory_analysis  # Design of the storytelling: Plots and Infography
+├── exploratory_analysis  # EDA analysis: data loading, cleaning, biomarker
+    ├── df_processed.csv  # Processed dataframe
+├── Abstract.html         # Project abstract / summary write-up
+├── Infography.png        # Final explanatory infographic
 └── README.md
 ```
 
