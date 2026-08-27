@@ -1,0 +1,297 @@
+---
+title: "Chronic Kidney Disease in the US"
+subtitle: "A Comprehensive Analysis"
+author:
+  - "Gabriel Torres ([gabriel.torresz@estudiants.urv.cat](mailto:gabriel.torresz@estudiants.urv.cat))"
+  - "Pablo Longán ([pablo.longan@estudiants.urv.cat](mailto:pablo.longan@estudiants.urv.cat))"
+  - "David Hidalgo ([david.hidalgof@estudiants.urv.cat](mailto:david.hidalgof@estudiants.urv.cat))"
+date: today
+format:
+  html:
+    toc: true
+    self-contained: true
+editor: source
+---
+
+## 1. Data Source: NHANES
+
+This analysis uses publicly available data from the National Health and Nutrition Examination Survey (NHANES): https://wwwn.cdc.gov/nchs/nhanes/default.aspx
+Selected Survey Cycles:
+
+- 2007–2008
+- 2009–2010
+- 2011–2012
+- 2013–2014
+- 2015–2016
+- 2017–2018
+
+These cycles were selected to ensure clinical consistency of kidney-related laboratory measurements (serum creatinine–based eGFR and urinary albumin-to-creatinine indicators), stable survey design prior to the COVID-19 pandemic and adequate temporal coverage (~10 years) for descriptive pattern analysis.
+Datasets files and documentation used:
+
+- Demographics Data → Containing patient demographic data like sex, age.
+- Laboratory Data → Containing laboratory measurements used as CKD indicators, specifically serum creatinine and Albumin & Creatinine in urine.
+- Questionnaire Data → Containing the results of the NHANES survey, specifically questions related to awareness of diminished kidney function.
+
+Selected fields for each dataset and description:
+
+Demographics:
+
+- SEQN →  Respondent sequence number
+- RIDAGEYR → Age in years at screening (Both males and females 0 YEARS - 150 YEARS)
+- RIAGENDR → Gender of the participant
+- Laboratory Data - Standard Biochemistry Profile (BIOPRO_ file):
+- SEQN → Respondent sequence number
+- LBXSCR → Creatinine, refrigerated serum (mg/dL) → The CKD laboratory indicator (biomarker of kidney damage, per KDIGO albuminuria categories)
+
+Laboratory Data - Albumin & Creatinine - Urine (ALB_CR_ file):
+
+- SEQN → Respondent sequence number
+- URXUMA → Albumin, urine (µg/mL) → The CKD laboratory indicator (biomarker of kidney damage, per KDIGO albuminuria categories)
+- URXUCR → Creatinine, urine (mg/dL) → Supporting CKD biomarker
+
+Questionnaire Data - Kidney Conditions - Urology (KIQ_U_ file):
+
+- SEQN → Respondent sequence number
+- KIQ022 → Ever told you had weak/failing kidneys? Do not include kidney stones, bladder infections, or incontinence. → CKD diagnosis proxy. This response shows if the patient has been made aware by her/his physician of a possible CKD.
+
+Note: these variables are used as proxies and do not represent a confirmed clinical diagnosis.
+
+
+## 2. Exploratory Data Analysis
+
+Once the variables of interest were selected from each dataframe, the analysis began. The scope was restricted to individuals older than 18 years, and data was cleaned by removing those without laboratory records for creatinine or questionnaire results.
+
+With the cleaned dataset, distributions of serum creatinine, urinary creatinine, and urinary albumin were plotted using histograms and boxplots to gain an initial understanding of the population. These variables showed a slight tail in values associated with disease, representing a small proportion of individuals.
+
+Estimated glomerular filtration rate (eGFR) and urine Albumin-to-Creatinine Ratio (ACR/uACR) were calculated from raw data and categorized per severity following clinical guidelines.  
+
+Using eGFR and ACR/uACR, the CKD Progression Risk of each patient was calculated.
+
+For creating a “CKD biomarker” for our further analysis, we grouped the CKD progression risk categories as binary: “high,” “very high,” or “highest” indicated a positive biomarker, while “low” or “moderate” indicated negative. Progression risk by age group showed that older individuals were more likely to fall into zones indicating CKD.
+
+A proxy of CKD diagnosis was created using the results from the kidney function questionnaire, where people was asked if they have been told by their Physician about having “weak/failing kidneys”. Where people answered negatively to this question it was assumed they are “Undiagnosed / Not aware”.
+
+We then assessed whether individuals with CKD were undiagnosed by comparing biomarker-positive patients with their self-reported awareness of kidney disease. Nearly 80% of patients with CKD were unaware of their condition.
+
+Bar charts were plotted for the diagnostic gap stratified by sex, education, poverty, ethnicity, and insurance coverage. Statistical tests (chi-square and odds ratios) showed that the only significant factor associated with the gap was health insurance.
+
+Finally, the proportion of uninsured patients was analyzed by poverty level and ethnicity. As expected, insurance coverage was strongly associated with both, as visualized in a heat map.
+
+### Conclusion
+
+The analysis revealed a substantial CKD diagnostic gap, with nearly 80% of biomarker-positive individuals unaware of their condition. Lack of health insurance was the only factor significantly associated with this gap, highlighting its role in delayed CKD detection.
+
+## 3. Explanatory Visualization
+
+**Target Audience:** Health administrators and managers, with the goal of raising awareness about the existing diagnostic gap in Chronic Kidney Disease (CKD).
+
+The infographic is organized into three main sections that describe CKD risk, diagnostic awareness, and socioeconomic barriers.
+
+In the first section, CKD Risk in the Population, a scatter plot combines eGFR and uACR to assess CKD progression risk according to clinical guidelines. While most individuals fall below the high-risk threshold, a small proportion of the population (approximately 6%) shows biological evidence of high CKD risk. Summary indicators highlight that despite this clear laboratory evidence, 74% of these high-risk individuals are not diagnosed or unaware of their condition, revealing a substantial diagnostic gap.
+
+The second section, Structural Barriers & Intersectionality, examines factors associated with this gap. A bar chart shows that uninsured individuals have a higher proportion of undiagnosed CKD compared to insured individuals. The heatmap further illustrates how lack of health insurance is unevenly distributed across poverty levels and ethnic groups, with higher proportions of uninsured individuals concentrated among those living in poverty and particularly among Mexican American populations.
+
+The final section, Progress Over Time, shows a gradual reduction in the diagnostic gap across survey years. However, the gap remains large, indicating that improvements in awareness and diagnosis have been limited.
+
+Overall, this visualization highlights how combining routinely collected laboratory data with clinical risk thresholds can identify high-risk individuals who are frequently missed in clinical practice. The findings emphasize the persistence of CKD underdiagnosis in the U.S. and the role of structural and socioeconomic barriers, underscoring the importance of earlier detection and targeted screening strategies.
+
+
+## 4. Visualization Tools
+
+A description of the visualization tool(s) used. Please include the code to produce base figures if you use a scripting language. Describe software and versions.
+
+* **Software:** R (v4.5.1)
+* **Libraries:**
+  - `dplyr`: Data manipulation
+  - `ggplot2`: Plot designing
+  - `scales`: Axes and legends aesthetics
+  - `patchwork`: Dashboard construction
+
+### Basic figures
+
+**Setup**
+```{r}
+#| label: Setup
+#| echo: true
+#| eval: false
+
+ggplot(
+  aes(
+    x = variable_index,
+    y = variable_values,
+    fill = variable_index, # color for the area
+    color = variable_index # color for the profile
+  )
+)
+```
+
+**(Clustered) Bar Plot**
+```{r}
+#| label: (Clustered) Bar Plot
+#| echo: true
+#| eval: false
+
+geom_col(
+  alpha = 0.8, # transparency, between 0-1
+  position = position_dodge(width = 0.9), # for clustered barplot
+  width = 0.7
+) +
+  
+# Circular Bar Plot
+coord_polar(theta = "y") +
+xlim(0.5, 2.5)
+```
+
+
+**Scatter Plot**
+```{r}
+#| label: Scatter Plot
+#| echo: true
+#| eval: false
+
+geom_point(
+  size = 2, # point size
+  alpha = 0.6 # transparency
+)
+```
+
+**Line Plot**
+```{r}
+#| label: Line Plot
+#| echo: true
+#| eval: false
+
+# Line
+geom_line(
+  color = "grey60",
+  size = 1
+) +
+
+# Intersection Point
+geom_point(
+  color = "grey60",
+  size = 3
+)
+```
+
+**Heatmap**
+```{r}
+#| label: Heatmap
+#| echo: true
+#| eval: false
+
+ggplot(
+    aes(
+      x = poverty_cat, # Variable 1
+      y = ethnicity, # Variable 2
+      fill = pct # Value to represent
+    )
+  ) +
+  
+  geom_tile(
+    color = "white", # color profile
+    size = 0.5 # profile width
+  ) +
+  
+scale_fill_distiller(
+  palette = "Blues", # color palette
+  direction = 1, # direction of the palette
+  name = legend_title
+) +
+
+# To add the values inside each cell
+geom_text(
+  aes(label = label_text),
+  color = "black", size = 4
+)
+```
+
+**Dashboard**
+```{r}
+#| label: Dashboard
+#| echo: true
+#| eval: false
+
+layout <- "
+AAB
+AAC
+"
+
+dashboard <-
+  
+  wrap_elements(plot_A) +
+  wrap_elements(plot_B) +
+  wrap_elements(plot_C) +
+  
+  plot_layout(design = layout) +
+  
+  plot_annotation(
+    title = "dashboard_title",
+    subtitle = "dashboard_subtitle",
+    caption = "dashboard_caption"
+  )
+```
+
+**Labelling**
+```{r}
+#| label: Labelling
+#| echo: true
+#| eval: false
+
+labs(
+  title = "plot_title",
+  subtitle = "plot_subtitle",
+  y = "y_axis_title", 
+  x = "x_axis_title",
+  fill = "fill_legend_title",
+  color = "color_legend_title"
+)
+```
+
+**Theme**
+```{r}
+#| label: Theme
+#| echo: true
+#| eval: false
+
+theme(
+    # Graph Title
+    plot.title = element_text(
+      family = "sans",
+      face = "bold",
+      size = 16,
+      hjust = 0, # Left align
+      margin = margin(b = 10) # Lower margin
+      
+    ),
+    
+    # Graph Subtitle
+    plot.subtitle = element_text(
+      family = "sans",
+      size = 12,
+      color = "grey30",     # Grey better than black
+      margin = margin(b = 10)
+    ),
+    
+    # Axis titles
+    axis.title = element_text(
+      family = "sans",
+      face = "bold",
+      size = 11
+    ),
+    
+    # Legends
+    legend.title = element_text(face = "bold", size = 11),
+    legend.text = element_text(size = 10),
+    
+    panel.grid.minor = element_blank() # Delete minor grid
+  )
+```
+
+## References
+* [KDIGO 2024 Clinical Practice Guideline](https://kdigo.org/wp-content/uploads/2024/03/KDIGO-2024-CKD-Guideline.pdf)
+* [CKD-EPI Creatinine Equiation (2021) -  National Kidney Foundation](https://www.kidney.org/ckd-epi-creatinine-equation-2021)
+* [Kidney Failure Risk Factor: Urine Albumin-Creatinine Ratio (uACR)](https://www.kidney.org/kidney-failure-risk-factor-urine-albumin-creatinine-ratio-uacr)
+* [Urine albumin-creatinine ratio (uACR)](https://www.kidney.org/kidney-topics/urine-albumin-creatinine-ratio-uacr)
+* [eGFR calculator](https://www.kidney.org/professionals/gfr_calculator)
+* [Albumin Creatinine ratio calculator](https://www.omnicalculator.com/health/acr)
