@@ -31,9 +31,6 @@ Datasets: Demographics (`DEMO`), Standard Biochemistry Profile (`BIOPRO`), Album
 Creatinine — Urine (`ALB_CR`), Health Insurance (`HIQ`), and Kidney Conditions —
 Urology questionnaire (`KIQ_U`).
 
-Raw `.xpt` files are **not included** in this repository (public CDC data, ~48 MB
-combined — see [Reproducing the analysis](#reproducing-the-analysis) below to fetch them).
-
 ## Methods
 
 - Harmonized the 6 cycles into a single adult cohort via multi-file joins on `SEQN`.
