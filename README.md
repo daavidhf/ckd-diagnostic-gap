@@ -16,7 +16,8 @@ socioeconomic and demographic factors are associated with it.
 
 ## Data
 
-U.S. National Health and Nutrition Examination Survey (NHANES), six two-year cycles:
+U.S. National Health and Nutrition Examination Survey (NHANES), six two-year cycles,
+under `dataset/<cycle>/`:
 
 | Cycle | Files used |
 |---|---|
@@ -31,17 +32,21 @@ Datasets: Demographics (`DEMO`), Standard Biochemistry Profile (`BIOPRO`), Album
 Creatinine — Urine (`ALB_CR`), Health Insurance (`HIQ`), and Kidney Conditions —
 Urology questionnaire (`KIQ_U`).
 
-## Methods
+## Pipeline
 
-- Harmonized the 6 cycles into a single adult cohort via multi-file joins on `SEQN`.
-- Derived eGFR (CKD-EPI) and urine albumin-to-creatinine ratio (uACR), and staged CKD
-  risk following **KDIGO guideline** thresholds into a binary high-risk biomarker.
-- Compared biomarker-positive status against self-reported physician diagnosis
-  (`KIQ_U` questionnaire) to quantify the diagnostic gap.
-- Chi-square tests and odds ratios across insurance status, poverty-income ratio,
-  education, and race/ethnicity to identify significant associated factors.
-- Explanatory infographic (Python, matplotlib/seaborn) designed for a non-technical,
-  health-administrator audience.
+This project runs as a **two-stage, two-language pipeline**:
+
+1. **Exploratory analysis (Python)** — `exploratory_analysis/exploratory.ipynb`
+   Loads and harmonizes the 6 NHANES cycles, derives eGFR (CKD-EPI) and urine
+   albumin-to-creatinine ratio (uACR), stages CKD risk per **KDIGO guideline**
+   thresholds into a binary high-risk biomarker, and runs the statistical testing
+   (`pandas`, `scipy.stats`: chi-square tests and odds ratios across insurance status,
+   poverty-income ratio, education, and race/ethnicity). Exports the processed cohort
+   to `exploratory_analysis/df_processed.csv`.
+2. **Explanatory analysis (R / Quarto)** — `explanatory_analysis/explanatory.qmd`
+   Reads `df_processed.csv` and builds the final explanatory infographic with a
+   custom `ggplot2` theme and `patchwork` panel layout, designed for a non-technical,
+   health-administrator audience.
 
 ## Key findings
 
@@ -52,26 +57,47 @@ Urology questionnaire (`KIQ_U`).
   and race/ethnicity showed a compounding, intersectional pattern in insurance coverage.
 - The diagnostic gap has **narrowed slowly** over the 2007–2018 period but remains large.
 
-![CKD diagnostic gap infographic](Infography.png)
+![CKD diagnostic gap infographic](infography/Final_Infography.png)
 
 ## Repository structure
 
 ```
 .
-├── explanatory_analysis  # Design of the storytelling: Plots and Infography
-├── exploratory_analysis  # EDA analysis: data loading, cleaning, biomarker
-    ├── df_processed.csv  # Processed dataframe
-├── Abstract.html         # Project abstract / summary write-up
-├── Infography.png        # Final explanatory infographic
+├── dataset/                          # Raw NHANES .xpt files, by cycle
+│   └── <cycle>/*.xpt
+├── exploratory_analysis/
+│   ├── exploratory.ipynb             # Python: cleaning, biomarker derivation, stats
+│   ├── exploratory.html              # Rendered, read-only export
+│   └── df_processed.csv              # Handoff file consumed by the R stage
+├── explanatory_analysis/
+│   ├── explanatory.qmd               # R/Quarto: final infographic (tidyverse, patchwork)
+│   ├── explanatory.html              # Rendered Quarto output
+│   └── explanatory_files/            # Individual panel renders
+├── infography/
+│   ├── Final_Infography.png          # Combined final infographic
+│   └── panel*.png                    # Individual panels
+├── Abstract.qmd / Abstract.html      # Project abstract / summary write-up
 └── README.md
+```
+
+## Reproducing the analysis
+
+```bash
+# 1. Python stage
+pip install pandas numpy scipy jupyter
+jupyter nbconvert --to notebook --execute exploratory_analysis/exploratory.ipynb
+
+# 2. R / Quarto stage (requires Quarto CLI: https://quarto.org)
+# install.packages(c("tidyverse", "patchwork"))
+quarto render explanatory_analysis/explanatory.qmd
 ```
 
 ## Tech stack
 
-Python · pandas · NumPy · matplotlib · seaborn · scipy.stats · Jupyter
+**Python** (exploratory analysis): pandas · NumPy · scipy.stats · Jupyter
+**R** (explanatory analysis): Quarto · tidyverse (ggplot2, dplyr) · patchwork
 
 ## Data source & license
 
 Data: NHANES, National Center for Health Statistics (NCHS), CDC — public-use,
-de-identified survey microdata. This repository contains only code and derived
-outputs (notebook, figures, abstract); no raw NHANES files are redistributed here.
+de-identified survey microdata.
