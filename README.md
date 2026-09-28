@@ -84,7 +84,7 @@ This project runs as a **two-stage, two-language pipeline**:
 
 ```bash
 # 1. Python stage
-pip install pandas numpy scipy jupyter
+pip install pandas numpy scipy matplotlib seaborn jupyter
 jupyter nbconvert --to notebook --execute exploratory_analysis/exploratory.ipynb
 
 # 2. R / Quarto stage (requires Quarto CLI: https://quarto.org)
@@ -94,7 +94,7 @@ quarto render explanatory_analysis/explanatory.qmd
 
 ## Tech stack
 
-**Python** (exploratory analysis): pandas · NumPy · scipy.stats · Jupyter
+**Python** (exploratory analysis): pandas · NumPy · scipy.stats · matplotlib · seaborn · Jupyter
 **R** (explanatory analysis): Quarto · tidyverse (ggplot2, dplyr) · patchwork
 
 ## Data source & license
